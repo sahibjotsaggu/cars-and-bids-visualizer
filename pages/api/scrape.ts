@@ -1,4 +1,4 @@
-import puppeteer from "puppeteer";
+import chromium from "chrome-aws-lambda";
 
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -23,7 +23,13 @@ export default async function handler(
   res: NextApiResponse<Response>
 ) {
   const { query } = req;
-  const browser = await puppeteer.launch();
+  const browser = await chromium.puppeteer.launch({
+    args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
+    defaultViewport: chromium.defaultViewport,
+    executablePath: await chromium.executablePath,
+    headless: true,
+    ignoreHTTPSErrors: true,
+  });
   const page = await browser.newPage();
   await page.goto(
     `https://carsandbids.com/past-auctions/?start_year=${query.start_year}&end_year=${query.end_year}`
