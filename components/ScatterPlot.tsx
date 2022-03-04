@@ -1,9 +1,9 @@
-import { Box, Spinner } from "@chakra-ui/react";
+import { Center, Spinner } from "@chakra-ui/react";
 import { ResponsiveScatterPlot } from "@nivo/scatterplot";
 import { Car } from "../pages/api/scrape";
 
 const ScatterPlot = ({ cars }: { cars: Car[] }) => (
-  <Box w="100%" h={300}>
+  <Center w="100%" h={300} display="flex">
     {cars.length ? (
       <ResponsiveScatterPlot
         data={[
@@ -72,7 +72,7 @@ const ScatterPlot = ({ cars }: { cars: Car[] }) => (
     ) : (
       <Spinner />
     )}
-  </Box>
+  </Center>
 );
 
 export default ScatterPlot;

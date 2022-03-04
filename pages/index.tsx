@@ -29,7 +29,6 @@ const Home: NextPage = () => {
       <Heading textAlign="center">Cars & Bids</Heading>
       <AuctionFilters
         fromYear={fromYear}
-        toYear={toYear}
         fromYearHandler={(year: number) => setFromYear(year)}
         toYearHandler={(year: number) => setToYear(year)}
       />

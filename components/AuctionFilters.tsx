@@ -3,14 +3,12 @@ import { Box, HStack, Select } from "@chakra-ui/react";
 
 interface AuctionFiltersProps {
   fromYear: number;
-  toYear: number;
   fromYearHandler: (year: number) => void;
   toYearHandler: (year: number) => void;
 }
 
 const AuctionFilters = ({
   fromYear,
-  toYear,
   fromYearHandler,
   toYearHandler,
 }: AuctionFiltersProps) => {
