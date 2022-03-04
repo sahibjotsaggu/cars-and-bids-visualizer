@@ -1,16 +1,21 @@
 import type { NextPage } from "next";
-import { ResponsiveScatterPlot, ScatterPlotDatum } from "@nivo/scatterplot";
 import useSWR from "swr";
-
-import { Car } from "./api/scrape";
-import ScatterPlot from "../components/ScatterPlot";
 import { Container, Heading } from "@chakra-ui/react";
+import ScatterPlot from "../components/ScatterPlot";
+import AuctionFilters from "../components/AuctionFilters";
+import { useState } from "react";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const Home: NextPage = () => {
+  const [fromYear, setFromYear] = useState<number>(0);
+  const [toYear, setToYear] = useState<number>(0);
+
   const { data, error } = useSWR(
-    "/api/scrape?start_year=2020&end_year=2020",
+    () =>
+      fromYear && toYear
+        ? `/api/scrape?start_year=${fromYear}&end_year=${toYear}`
+        : null,
     fetcher,
     {
       revalidateOnFocus: false,
@@ -18,20 +23,17 @@ const Home: NextPage = () => {
   );
 
   if (error) return <div>failed to load</div>;
-  if (!data) return <div>loading...</div>;
-
-  const graphData = data.cars.map((car: Car) => ({
-    x: car.endDate,
-    y: car.bidValue,
-    name: car.name,
-  }));
 
   return (
-    <Container>
-      <Heading textAlign="center">Cars & Bids </Heading>
-      <div style={{ width: "100%", height: 300 }}>
-        <ScatterPlot data={graphData} />
-      </div>
+    <Container mt={5}>
+      <Heading textAlign="center">Cars & Bids</Heading>
+      <AuctionFilters
+        fromYear={fromYear}
+        toYear={toYear}
+        fromYearHandler={(year: number) => setFromYear(year)}
+        toYearHandler={(year: number) => setToYear(year)}
+      />
+      {fromYear && toYear ? <ScatterPlot cars={data?.cars || []} /> : null}
     </Container>
   );
 };

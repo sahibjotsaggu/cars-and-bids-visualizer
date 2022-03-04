@@ -1,5 +1,5 @@
 import chromium from "chrome-aws-lambda";
-
+// import puppeteer from "puppeteer";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 type CarsAndBidsAuction = {
@@ -30,6 +30,7 @@ export default async function handler(
     headless: true,
     ignoreHTTPSErrors: true,
   });
+  // const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.goto(
     `https://carsandbids.com/past-auctions/?start_year=${query.start_year}&end_year=${query.end_year}`
