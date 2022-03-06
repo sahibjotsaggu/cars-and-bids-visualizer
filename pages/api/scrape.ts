@@ -18,6 +18,26 @@ type Response = {
   cars: Car[];
 };
 
+type MapKeyString = {
+  [key: string]: number;
+};
+
+const trannyMap = {
+  automatic: 1,
+  manual: 2,
+} as MapKeyString;
+
+const bodyStyleMap = {
+  coupe: 1,
+  convertible: 2,
+  hatchback: 3,
+  sedan: 4,
+  "suv/crossover": 5,
+  truck: 6,
+  "van/minivan": 7,
+  wagon: 8,
+} as MapKeyString;
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Response>
@@ -33,7 +53,17 @@ export default async function handler(
   // const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.goto(
-    `https://carsandbids.com/past-auctions/?start_year=${query.start_year}&end_year=${query.end_year}`
+    `https://carsandbids.com/past-auctions/?start_year=${
+      query.start_year
+    }&end_year=${query.end_year}${
+      query.transmission !== "all"
+        ? "&transmission=" + trannyMap[query.transmission as string]
+        : ""
+    }${
+      query.bodyStyle !== "all"
+        ? "&body_style=" + bodyStyleMap[query.bodyStyle as string]
+        : ""
+    }`
   );
 
   const apiAuctionResponse = await page.waitForResponse(
