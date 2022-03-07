@@ -1,5 +1,4 @@
 import chromium from "chrome-aws-lambda";
-// import puppeteer from "puppeteer";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 type CarsAndBidsAuction = {
@@ -16,6 +15,8 @@ export type Car = {
 
 type Response = {
   cars: Car[];
+  page: number;
+  total: number;
 };
 
 type MapKeyString = {
@@ -43,6 +44,7 @@ export default async function handler(
   res: NextApiResponse<Response>
 ) {
   const { query } = req;
+
   const browser = await chromium.puppeteer.launch({
     args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
     defaultViewport: chromium.defaultViewport,
@@ -50,12 +52,12 @@ export default async function handler(
     headless: true,
     ignoreHTTPSErrors: true,
   });
-  // const browser = await puppeteer.launch();
+
   const page = await browser.newPage();
   await page.goto(
     `https://carsandbids.com/past-auctions/?start_year=${
       query.start_year
-    }&end_year=${query.end_year}${
+    }&end_year=${query.end_year}&page=${query.page}${
       query.transmission !== "all"
         ? "&transmission=" + trannyMap[query.transmission as string]
         : ""
@@ -72,22 +74,26 @@ export default async function handler(
       response.status() === 200
   );
 
-  const auctions = (await apiAuctionResponse.json()).auctions.map(
-    (auction: CarsAndBidsAuction) => {
-      const auctionEndDate = new Date(auction.auction_end);
-      return {
-        name: auction.title,
-        endDate: `${auctionEndDate.getUTCFullYear()}-${
-          auctionEndDate.getUTCMonth() + 1
-        }-${auctionEndDate.getUTCDate() + 1}`, // + 1 on getUTCDate because graph plots in local time
-        bidValue: auction.current_bid,
-      };
-    }
-  );
+  const auctionJson = await apiAuctionResponse.json();
+
+  const totalResults = auctionJson.total;
+
+  const auctions = auctionJson.auctions.map((auction: CarsAndBidsAuction) => {
+    const auctionEndDate = new Date(auction.auction_end);
+    return {
+      name: auction.title,
+      endDate: `${auctionEndDate.getUTCFullYear()}-${
+        auctionEndDate.getUTCMonth() + 1
+      }-${auctionEndDate.getUTCDate() + 1}`, // + 1 on getUTCDate because graph plots in local time
+      bidValue: auction.current_bid,
+    };
+  });
 
   await browser.close();
 
   return res.status(200).json({
     cars: auctions,
+    page: Number(query.page),
+    total: totalResults,
   });
 }

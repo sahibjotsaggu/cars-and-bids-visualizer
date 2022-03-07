@@ -1,9 +1,9 @@
-import { Center, Spinner } from "@chakra-ui/react";
+import { Box, Center, Spinner, Text } from "@chakra-ui/react";
 import { ResponsiveScatterPlot } from "@nivo/scatterplot";
 import { Car } from "../pages/api/scrape";
 
 const ScatterPlot = ({ cars }: { cars: Car[] }) => (
-  <Center w="100%" h={300} display="flex">
+  <Center w="100%" h={400} display="flex">
     {cars.length ? (
       <ResponsiveScatterPlot
         data={[
@@ -27,7 +27,7 @@ const ScatterPlot = ({ cars }: { cars: Car[] }) => (
           }).format(number as number)
         }
         blendMode="multiply"
-        colors={{ scheme: "red_blue" }}
+        colors={{ scheme: "nivo" }}
         axisTop={null}
         axisRight={null}
         axisBottom={{
@@ -70,7 +70,12 @@ const ScatterPlot = ({ cars }: { cars: Car[] }) => (
         }}
       />
     ) : (
-      <Spinner />
+      <Box display="flex">
+        <Text fontSize="sm" mr={4}>
+          Searching Cars & Bids...
+        </Text>
+        <Spinner />
+      </Box>
     )}
   </Center>
 );
