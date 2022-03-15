@@ -1,6 +1,6 @@
 {
   "functions": {
-    "pages/api/db.json": {
+    "pages/api/scrape.ts": {
       "includeFiles": "db.json"
     }
   }
