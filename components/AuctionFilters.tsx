@@ -1,22 +1,22 @@
 import { useState } from "react";
 import { Box, FormControl, FormLabel, HStack, Select } from "@chakra-ui/react";
-import { BodyStyle, Transmission } from "../pages";
+// import { BodyStyle, Transmission } from "../pages";
 
 interface AuctionFiltersProps {
   fromYear: number;
   fromYearHandler: (year: number) => void;
   toYearHandler: (year: number) => void;
-  transmissionHandler: (transmission: Transmission) => void;
-  bodyStyleHandler: (bodyStyle: BodyStyle) => void;
+  // transmissionHandler: (transmission: Transmission) => void;
+  // bodyStyleHandler: (bodyStyle: BodyStyle) => void;
 }
 
 const AuctionFilters = ({
   fromYear,
   fromYearHandler,
   toYearHandler,
-  transmissionHandler,
-  bodyStyleHandler,
-}: AuctionFiltersProps) => {
+}: // transmissionHandler,
+// bodyStyleHandler,
+AuctionFiltersProps) => {
   const [years] = useState(new Array(42).fill(0).map((_, i) => 1981 + i));
 
   return (
@@ -48,7 +48,7 @@ const AuctionFilters = ({
             ))}
           </Select>
         </FormControl>
-        <FormControl>
+        {/* <FormControl>
           <FormLabel>Transmission</FormLabel>
           <Select
             placeholder="Transmission"
@@ -81,7 +81,7 @@ const AuctionFilters = ({
             <option value="van/minivan">Van/Minivan</option>
             <option value="wagon">Wagon</option>
           </Select>
-        </FormControl>
+        </FormControl> */}
       </HStack>
     </Box>
   );

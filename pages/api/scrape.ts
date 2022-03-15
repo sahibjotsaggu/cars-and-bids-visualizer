@@ -1,5 +1,9 @@
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
 import chromium from "chrome-aws-lambda";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { Low, JSONFile } from "lowdb";
+import { Browser, Page } from "puppeteer-core";
 
 type CarsAndBidsAuction = {
   title: string;
@@ -8,7 +12,8 @@ type CarsAndBidsAuction = {
 };
 
 export type Car = {
-  name: string | null;
+  name: string;
+  modelYear: number;
   endDate: string;
   bidValue: number;
 };
@@ -39,12 +44,18 @@ const bodyStyleMap = {
   wagon: 8,
 } as MapKeyString;
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<Response>
-) {
-  const { query } = req;
+type DBData = {
+  auctions: Car[];
+};
 
+export const setupDB = (): Low<DBData> => {
+  const __dirname = dirname(fileURLToPath(import.meta.url));
+  const file = join(__dirname, "db.json");
+  const adapter = new JSONFile<DBData>(file);
+  return new Low(adapter);
+};
+
+export const startBrowser = async () => {
   const browser = await chromium.puppeteer.launch({
     args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
     defaultViewport: chromium.defaultViewport,
@@ -53,11 +64,23 @@ export default async function handler(
     ignoreHTTPSErrors: true,
   });
 
-  const page = await browser.newPage();
+  return {
+    page: await browser.newPage(),
+    browser,
+  };
+};
+
+export type TQuery = {
+  [key: string]: string | string[];
+};
+
+export const scrapePage = async (query: TQuery, page: Page, pageNumber = 1) => {
   await page.goto(
     `https://carsandbids.com/past-auctions/?start_year=${
-      query.start_year
-    }&end_year=${query.end_year}&page=${query.page}${
+      query.start_year || "1981"
+    }&end_year=${
+      query.end_year || String(new Date().getFullYear())
+    }&page=${pageNumber}${
       query.transmission !== "all"
         ? "&transmission=" + trannyMap[query.transmission as string]
         : ""
@@ -76,7 +99,7 @@ export default async function handler(
 
   const auctionJson = await apiAuctionResponse.json();
 
-  const totalResults = auctionJson.total;
+  const totalAuctions = auctionJson.total;
 
   const auctions = auctionJson.auctions.map((auction: CarsAndBidsAuction) => {
     const auctionEndDate = new Date(auction.auction_end);
@@ -89,11 +112,40 @@ export default async function handler(
     };
   });
 
+  return {
+    auctions: auctions as Car[],
+    totalAuctions: totalAuctions as number,
+  };
+};
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<Response>
+) {
+  const { query } = req;
+
+  const db = setupDB();
+  await db.read();
+
+  const { page, browser } = await startBrowser();
+
+  const { auctions, totalAuctions } = await scrapePage(
+    query,
+    page,
+    Number(query.page)
+  );
+
   await browser.close();
+
+  db.data ||= { auctions: [] };
+
+  db.data.auctions = auctions;
+
+  await db.write();
 
   return res.status(200).json({
     cars: auctions,
     page: Number(query.page),
-    total: totalResults,
+    total: totalAuctions,
   });
 }
