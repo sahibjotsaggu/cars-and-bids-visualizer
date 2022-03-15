@@ -1,3 +1,4 @@
+import fs from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import chromium from "chrome-aws-lambda";
@@ -52,6 +53,8 @@ export const setupDB = (): Low<DBData> => {
   const __dirname = dirname(fileURLToPath(import.meta.url));
   const file = join(__dirname, "db.json");
   console.log(file);
+  const stream = fs.createReadStream(file);
+  console.log(stream);
   const adapter = new JSONFile<DBData>(file);
   return new Low(adapter);
 };
