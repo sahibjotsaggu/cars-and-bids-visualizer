@@ -11,6 +11,9 @@ export const getAuctions = async (query: TQuery): Promise<Response> => {
   const db = setupDB();
   await db.read();
 
+  console.log("db.data:");
+  console.log(db.data);
+
   db.data ||= { auctions: [] };
 
   const offset = query.offset ? Math.abs(Number(query.offset)) : 0;
