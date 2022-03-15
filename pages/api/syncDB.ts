@@ -48,6 +48,6 @@ export default async function handler(
   }
 
   return res.status(200).json({
-    auctionsAdded: 0,
+    auctionsAdded: 0, // TODO
   });
 }

@@ -51,6 +51,7 @@ type DBData = {
 export const setupDB = (): Low<DBData> => {
   const __dirname = dirname(fileURLToPath(import.meta.url));
   const file = join(__dirname, "db.json");
+  console.log(file);
   const adapter = new JSONFile<DBData>(file);
   return new Low(adapter);
 };
