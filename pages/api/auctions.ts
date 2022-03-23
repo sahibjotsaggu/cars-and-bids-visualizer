@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { Car, TQuery } from "./scrape";
+import { Car, TQuery } from "../../api/scrape";
 import client from "../../lib/mongodb";
 
 type Response = {
