@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import useSWR from "swr";
@@ -14,21 +14,8 @@ import {
 import theme from "@chakra-ui/theme";
 import ScatterPlot from "../components/ScatterPlot";
 import AuctionFilters from "../components/AuctionFilters";
-import { Car } from "./api/scrape";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
-// export type Transmission = "all" | "automatic" | "manual";
-// export type BodyStyle =
-//   | "all"
-//   | "coupe"
-//   | "convertible"
-//   | "hatchback"
-//   | "sedan"
-//   | "suv/crossover"
-//   | "truck"
-//   | "van/minivan"
-//   | "wagon";
 
 const HighlightSpan = ({ children }: { children?: React.ReactNode }) => {
   return (
@@ -46,9 +33,6 @@ const Home: NextPage = () => {
   const [fromYear, setFromYear] = useState<number>(0);
   const [toYear, setToYear] = useState<number>(0);
   const [limit, setLimit] = useState(50);
-  // const [transmission, setTransmission] = useState<Transmission>("all");
-  // const [bodyStyle, setBodyStyle] = useState<BodyStyle>("all");
-  // const [carsData, setCarsData] = useState<Car[]>([]);
   const [filterText, setFilterText] = useState("");
 
   const { data, error } = useSWR(
@@ -63,6 +47,8 @@ const Home: NextPage = () => {
   );
 
   if (error) return <div>failed to load</div>;
+
+  console.log({ data });
 
   // const filterResults = () => {
   //   const filteredResults = carsData.filter((car) =>
@@ -90,15 +76,9 @@ const Home: NextPage = () => {
           toYearHandler={(year: number) => {
             setToYear(year);
           }}
-          // transmissionHandler={(transmission: Transmission) => {
-          //   setTransmission(transmission);
-          // }}
-          // bodyStyleHandler={(bodyStyle: BodyStyle) => {
-          //   setBodyStyle(bodyStyle);
-          // }}
         />
 
-        {fromYear && toYear && data ? (
+        {/* {fromYear && toYear && data ? (
           <Box>
             <Container mt={4}>
               <HStack>
@@ -120,8 +100,8 @@ const Home: NextPage = () => {
               Bid values for {fromYear}-{toYear} vehicles.
             </Heading>
           </Box>
-        ) : null}
-        {fromYear && toYear && data ? <ScatterPlot cars={data.cars} /> : null}
+        ) : null} */}
+        {fromYear && toYear ? <ScatterPlot data={data} /> : null}
         {data && (
           <Text
             mt={2}

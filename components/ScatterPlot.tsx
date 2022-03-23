@@ -2,14 +2,14 @@ import { Box, Center, Spinner, Text } from "@chakra-ui/react";
 import { ResponsiveScatterPlot } from "@nivo/scatterplot";
 import { Car } from "../pages/api/scrape";
 
-const ScatterPlot = ({ cars }: { cars: Car[] }) => (
+const ScatterPlot = ({ data }: { data: { cars: Car[] } | undefined }) => (
   <Center w="100%" h={400} display="flex">
-    {cars.length ? (
+    {data?.cars.length ? (
       <ResponsiveScatterPlot
         data={[
           {
             id: "snaek",
-            data: cars.map((car: Car) => ({
+            data: data.cars.map((car: Car) => ({
               x: car.endDate,
               y: car.bidValue,
               name: car.name,

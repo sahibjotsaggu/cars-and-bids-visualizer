@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { Car, setupDB, TQuery } from "./scrape";
+import client from "../../lib/mongodb";
 
 type Response = {
   cars: Car[];
@@ -11,33 +12,31 @@ export const getAuctions = async (query: TQuery): Promise<Response> => {
   const db = setupDB();
   await db.read();
 
-  console.log("db.data:");
-  console.log(db.data);
+  await client.connect();
+
+  const database = client.db("cars-and-bids");
+  const auctionsColl = database.collection("auctions");
 
   db.data ||= { auctions: [] };
 
   const offset = query.offset ? Math.abs(Number(query.offset)) : 0;
   const limit = query.limit ? Math.abs(Number(query.limit)) : 50;
 
-  let filteredAuctions: Car[] = [];
-  let filteredAuctionsTotal = 0;
+  const auctions = await auctionsColl
+    .find<Car>({
+      modelYear: {
+        $gte: Number(query.start_year),
+        $lte: Number(query.end_year),
+      },
+    })
+    .toArray();
 
-  if (db.data.auctions.length) {
-    filteredAuctions = db.data.auctions.filter((auction) => {
-      // auction modelYear is between query.start_year and query.end_year
-      return (
-        auction.modelYear >= Number(query.start_year) &&
-        auction.modelYear <= Number(query.end_year)
-      );
-    });
-    filteredAuctionsTotal = filteredAuctions.length;
-    filteredAuctions = filteredAuctions.slice(offset, offset + limit);
-  }
+  const filteredAuctions = auctions.slice(offset, offset + limit);
 
   return {
     cars: filteredAuctions,
     page: Number(query.page),
-    total: filteredAuctionsTotal,
+    total: auctions.length,
   };
 };
 

@@ -19,6 +19,7 @@
     "chrome-aws-lambda": "^10.1.0",
     "framer-motion": "^6",
     "lowdb": "^3.0.0",
+    "mongodb": "^4.4.1",
     "next": "12.1.0",
     "puppeteer": "^13.4.1",
     "puppeteer-core": "10.1.0",

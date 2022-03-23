@@ -1,10 +1,9 @@
-import { readFileSync } from "fs";
-import { join, dirname, resolve } from "path";
+import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import chromium from "chrome-aws-lambda";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Low, JSONFile } from "lowdb";
-import { Browser, Page } from "puppeteer-core";
+import { Page } from "puppeteer-core";
 
 type CarsAndBidsAuction = {
   title: string;
