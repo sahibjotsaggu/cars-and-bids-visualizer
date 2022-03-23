@@ -1,8 +1,5 @@
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
 import chromium from "chrome-aws-lambda";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { Low, JSONFile } from "lowdb";
 import { Page } from "puppeteer-core";
 
 type CarsAndBidsAuction = {
@@ -46,13 +43,6 @@ const bodyStyleMap = {
 
 type DBData = {
   auctions: Car[];
-};
-
-export const setupDB = (): Low<DBData> => {
-  const __dirname = dirname(fileURLToPath(import.meta.url));
-  const file = join(__dirname, "db.json");
-  const adapter = new JSONFile<DBData>(file);
-  return new Low(adapter);
 };
 
 export const startBrowser = async () => {
@@ -124,9 +114,6 @@ export default async function handler(
 ) {
   const { query } = req;
 
-  const db = setupDB();
-  await db.read();
-
   const { page, browser } = await startBrowser();
 
   const { auctions, totalAuctions } = await scrapePage(
@@ -136,12 +123,6 @@ export default async function handler(
   );
 
   await browser.close();
-
-  db.data ||= { auctions: [] };
-
-  db.data.auctions = auctions;
-
-  await db.write();
 
   return res.status(200).json({
     cars: auctions,

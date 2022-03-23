@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { Car, setupDB, TQuery } from "./scrape";
+import { Car, TQuery } from "./scrape";
 import client from "../../lib/mongodb";
 
 type Response = {
@@ -9,15 +9,10 @@ type Response = {
 };
 
 export const getAuctions = async (query: TQuery): Promise<Response> => {
-  const db = setupDB();
-  await db.read();
-
   await client.connect();
 
   const database = client.db("cars-and-bids");
   const auctionsColl = database.collection("auctions");
-
-  db.data ||= { auctions: [] };
 
   const offset = query.offset ? Math.abs(Number(query.offset)) : 0;
   const limit = query.limit ? Math.abs(Number(query.limit)) : 50;
