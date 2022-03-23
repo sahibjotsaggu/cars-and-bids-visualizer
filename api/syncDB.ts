@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { scrapePage, startBrowser } from "./scrape";
-import client from "../../lib/mongodb";
+import client from "../lib/mongodb";
 
 import { getTotalAuctions } from "./getTotalAuctions";
 

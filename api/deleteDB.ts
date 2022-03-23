@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import client from "../../lib/mongodb";
+import client from "../lib/mongodb";
 
 type Response = {
   auctionsDeleted: number;
