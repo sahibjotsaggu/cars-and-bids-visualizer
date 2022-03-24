@@ -41,10 +41,6 @@ const bodyStyleMap = {
   wagon: 8,
 } as MapKeyString;
 
-type DBData = {
-  auctions: Car[];
-};
-
 export const startBrowser = async () => {
   const browser = await chromium.puppeteer.launch({
     args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],

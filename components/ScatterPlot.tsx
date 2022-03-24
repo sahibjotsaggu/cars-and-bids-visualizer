@@ -1,6 +1,6 @@
 import { Box, Center, Spinner, Text } from "@chakra-ui/react";
 import { ResponsiveScatterPlot } from "@nivo/scatterplot";
-import { Car } from "../api/scrape";
+import { Car } from "../local_api/scrape";
 
 const ScatterPlot = ({ data }: { data: { cars: Car[] } | undefined }) => (
   <Center w="100%" h={400} display="flex">

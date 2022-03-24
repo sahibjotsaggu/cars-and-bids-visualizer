@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import useSWR from "swr";
@@ -29,22 +29,33 @@ const HighlightSpan = ({ children }: { children?: React.ReactNode }) => {
   );
 };
 
+const LIMIT = 50;
+
 const Home: NextPage = () => {
-  const [fromYear, setFromYear] = useState<number>(0);
-  const [toYear, setToYear] = useState<number>(0);
-  const [limit, setLimit] = useState(50);
+  const [fromYear, setFromYear] = useState(0);
+  const [toYear, setToYear] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [filterText, setFilterText] = useState("");
 
   const { data, error } = useSWR(
     () =>
       fromYear && toYear
-        ? `/api/auctions?limit=${limit}&start_year=${fromYear}&end_year=${toYear}`
+        ? `/api/auctions?limit=${
+            currentPage * LIMIT
+          }&start_year=${fromYear}&end_year=${toYear}`
         : null,
     fetcher,
     {
       revalidateOnFocus: false,
     }
   );
+
+  console.log(totalPages);
+
+  useEffect(() => {
+    data?.totalPages && setTotalPages(data.totalPages);
+  }, [data]);
 
   if (error) return <div>failed to load</div>;
 
@@ -72,9 +83,11 @@ const Home: NextPage = () => {
               setToYear(0);
             }
             setFromYear(year);
+            setCurrentPage(1);
           }}
           toYearHandler={(year: number) => {
             setToYear(year);
+            setCurrentPage(1);
           }}
         />
 
@@ -110,8 +123,14 @@ const Home: NextPage = () => {
             sx={{ textTransform: "uppercase" }}
           >
             Currently showing <HighlightSpan>{data.cars.length}</HighlightSpan>{" "}
-            out of <HighlightSpan>{data.total}</HighlightSpan> total results.
+            out of <HighlightSpan>{data.totalResults}</HighlightSpan> total
+            results.
           </Text>
+        )}
+        {data && currentPage < data.totalPages && (
+          <Button onClick={() => setCurrentPage(currentPage + 1)}>
+            Load more results
+          </Button>
         )}
       </Container>
     </>

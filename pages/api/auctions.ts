@@ -1,12 +1,14 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { Car, TQuery } from "../../api/scrape";
+import { Car, TQuery } from "../../local_api/scrape";
 import client from "../../lib/mongodb";
 
 type Response = {
   cars: Car[];
-  page: number;
-  total: number;
+  totalPages: number;
+  totalResults: number;
 };
+
+const LIMIT = 50;
 
 export const getAuctions = async (query: TQuery): Promise<Response> => {
   await client.connect();
@@ -14,8 +16,7 @@ export const getAuctions = async (query: TQuery): Promise<Response> => {
   const database = client.db("cars-and-bids");
   const auctionsColl = database.collection("auctions");
 
-  const offset = query.offset ? Math.abs(Number(query.offset)) : 0;
-  const limit = query.limit ? Math.abs(Number(query.limit)) : 50;
+  const limit = query.limit ? Math.abs(Number(query.limit)) : LIMIT;
 
   const auctions = await auctionsColl
     .find<Car>({
@@ -26,12 +27,12 @@ export const getAuctions = async (query: TQuery): Promise<Response> => {
     })
     .toArray();
 
-  const filteredAuctions = auctions.slice(offset, offset + limit);
+  const filteredAuctions = auctions.slice(0, limit);
 
   return {
     cars: filteredAuctions,
-    page: Number(query.page),
-    total: auctions.length,
+    totalPages: Math.ceil(auctions.length / LIMIT),
+    totalResults: auctions.length,
   };
 };
 
@@ -39,11 +40,11 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Response>
 ) {
-  const { cars, page, total } = await getAuctions(req.query);
+  const { cars, totalPages, totalResults } = await getAuctions(req.query);
 
   return res.status(200).json({
     cars,
-    page,
-    total,
+    totalPages,
+    totalResults,
   });
 }
